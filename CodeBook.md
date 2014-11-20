@@ -2,42 +2,41 @@
 
 ## Context
 
-Data was collected by a group of researchers to analyze the possibility of using smartphones with embedded inertial sensors to assess human activity. The experiment was done with 30 subjects carrying the smartphones, who were video-recorded while performing one among six activities (walking, walking upstairs, walking downstairs, sitting, standing, laying). Three-axial linear acceleration and 3-axial angular velocity were measured with the inertial sensors during activities. The sensor signals were pre-processed (i.e., noise filtering, time window sampling) and 561 features from time and frequency domains were calculated for each activity performed by each subjects. The data set was randomly partitioned into a training set (70% of the subjects) and a testing set (30% of the subjects). The data files were made available for further analysis on the UCI Machine Learning Repository. In order to be able to analyze that data, one needs to assemble the various parts that are contained in separate files (i.e., measurements, features, activities, subjects). More details on the experiment and the data can be found at the following address:
+Data was collected by a group of researchers to analyze the possibility of using smartphones with embedded inertial sensors to assess human activity. The experiment was done with 30 subjects carrying the smartphones, who were video-recorded while performing one among six activities (walking, walking upstairs, walking downstairs, sitting, standing, laying). Three-axial linear acceleration and 3-axial angular velocity were measured with the inertial sensors during activities. The sensor signals were pre-processed (i.e., noise filtering, time window sampling) and 561 features from time and frequency domains were calculated for each activity performed by each subject. The data set was randomly partitioned into a training set (70% of the subjects) and a testing set (30% of the subjects). The data files were made available for further analysis on the UCI Machine Learning Repository. In order to be able to analyze that data, one needs to assemble the various parts that are contained in separate files (i.e., measurements, features, activities, subjects). More details on the experiment and the data can be found at the following address:
 
 http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones 
 
 ## Objectives
 
-The objective of this project was to first assemble the different files to compose a data set according to the specifications listed below, and to create a second data containing the average values of selected features for each activity and each subject. The specifications included:
+The objective of this project was to first assemble the different files to compose a data set according to the specifications listed below, and to create a second data set containing the average values of selected features for each activity and each subject. The specifications included:
 - merging the training and testing data;
 - selecting only features corresponding to the mean and standard deviation of each measurement;
-- use descriptive labels to identify selected features;
-- use the appropriate label to identify activities.
+- using descriptive labels to identify selected features;
+- using the appropriate label to identify activities.
 
 
 ## Data source
 
-The files used were downloaded from the following site:
+The files were downloaded using this URL:
 https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip
 
 The following unzipped files were used:
-- train/X_train.txt: training set of measurements (features.txt: list of 561 features corresponding to each column of the measurement files;
-- features.txt: contains labels for the 561 features - 561 * 2 (feature # and label);
-- activity_labels.txt: contains the six activity labels - 6 * 2 (activity code + label));
-- train/x_train.txt: contains the training data (7352 observations * 561 features);
-- train/y_train.txt contains the activity code corresponding to each observation (7352 * 1);
-- train/subject_train.txt: contains subject id (21 values between 1 and 30); 
-- test/x_test.txt: contains the testing data (2947 observations * 561 features);
-- test/y_test.txt contains the activity code corresponding to each observation (2947 * 1);
-- test/subject_test.txt: contains subject id (9 values between 1 and 30, not found in train/subject_train.txt); 
+- features.txt: labels for the 561 features - 561 * 2 (feature # and label);
+- activity_labels.txt: six activity labels - 6 * 2 (activity code and label));
+- train/x_train.txt: training data (7352 observations * 561 features);
+- train/y_train.txt: activity code corresponding to each observation of the training set (7352 * 1);
+- train/subject_train.txt: subject id for training set (21 values between 1 and 30); 
+- test/x_test.txt: testing data (2947 observations * 561 features);
+- test/y_test.txt: activity code corresponding to each observation of the testing set (2947 * 1);
+- test/subject_test.txt: subject id for testing set (9 values between 1 and 30, not found in train/subject_train.txt); 
 
 ## Methods
 
 After reading all data files into R, the following steps were followed (see the run_analysis.R script in the same repo).
 
-# 1. Selection of features 
+### 1. Selection of features 
 
-The required features were first selected. The initial names of the features found in features.txt allowed to identify the variable and the mathematical treatment applied.
+The required features were first selected. The initial names of the features found in features.txt helped identifying the variables and the mathematical treatment applied on it.
 
 There was a total of 33 variables (for variables ending with XYZ, there was one variable for each axis): 
 - tBodyAcc-XYZ
@@ -78,28 +77,28 @@ There were 16 possible treatments done:
 
 In the 561 features, there were also four fields representing angle between vectors.
 
-Each of the 561 field names contained information on the variable and on the treatment. For example, the variable tBodyAcc-mean()-X represented the mean of the tBodyAcc along the X axis. For this poject, we were only interested by the mean() and standard deviation (std()). 
+Each of the 561 field names contained information on the variable and on the treatment. For example, the variable tBodyAcc-mean()-X represented the mean of the tBodyAcc along the X axis. For this project, we were only interested by the mean() and standard deviation (std()). 
 
-The str_detect functions from the stringr package was then use to identify al features that contained either the string mean() or the string std(). 66 features contained one or the other. This was used to compose a logical vector to be able to subset the whole measurement data set in a subsequent step.
+The str_detect functions from the stringr package was then used to identify all features that contained either the string mean() or the string std(). 66 features contained one or the other. This was used to compose a logical vector to be able to subset the whole measurement data set in a subsequent step.
 
-#2. Prepare training and testing subsets 
+### 2. Prepare training and testing subsets 
 
-Relevant columns from first selected from the training table created from the basic file (X_train.txt), using the logical vector created in step 1. Then the vector representing the ids of the subjects (from subject_train.txt) was column-bound to that subset. The activity code vector (from y_train.txt) was the column bound to that subset.
+Relevant columns were selected from the training table created from the basic file (X_train.txt), using the logical vector created in step 1. Then the vector representing the ids of the subjects (from subject_train.txt) was column-bound to that subset. The activity code vector (from y_train.txt) was then column-bound to that subset.
 
-The same operations were performed with the testing tables from X_test.txt, subject_train.txt and y_train.txt.
+The same operations were performed with the testing tables from X_test.txt, subject_train.txt and y_train.txt files.
 
-#3. Merge training and testing sets and identify activities
+### 3. Merge training and testing sets and identify activities
 
-The training and testing subsets produced in step 2 were merged together using row binding, which produced a data table of 10299 rows by 68 columns. The last operation consisted of retrieving the activity label corresponding to the activity code for each observation. This was done using the merge function applied on the activity column. The activity code column was then removed and the final table was created (df_alldata).
+The training and testing subsets produced in step 2 were merged together using row binding, which produced a data table of 10299 rows by 68 columns. The last operation consisted of retrieving the activity label corresponding to the activity code for each observation. This was done using the merge function applied on the activity column. The activity code column was then removed from this new table (df_alldata).
 
-#4. Calculate the average of each selected feature for each subject and each activity
+### 4. Calculate the average of each selected feature for each subject and each activity
 
 A table was created by sub-grouping the df_alldata table, using the group_by function of the dplyr package. It was grouped by subject and activity. Then the mean function was applied to each sub-group using the summarise_each function and the results were assigned to a new table called stats_subj_act. This resulting table was then exported to the stats_subj_act.txt file.
 
 
 ## Description of the final file (stats_subj_act.txt file)
 
-The final file contains 68 variables and 181 lines. The data in each line is space delimited. The first line contains the headers with "". Each of the other 180 lines contain the data: identification of the subject (1 to 30), activity (one of six possibilities), and the average values of the 66 selected measurement features. The 68 variable names are listed below. Only two of the 66 measurement features are described; the same logic applies to all 64 other features.
+The final file contains 68 variables and 181 lines. The data in each line is space delimited. The first line contains the headers with "". The other 180 lines contain the data: identification of the subject (1 to 30), activity (one of six possibilities), and the average values of the 66 selected measurement features. The 68 variable names are listed below. Only two of the 66 measurement features are described; the same logic applies to all 64 other features.
 
 - subject: id of the experiment subject (1 to 30)
 - activity: name of the activity (walking, walking upstairs, walking downstairs, sitting, standing, laying)
