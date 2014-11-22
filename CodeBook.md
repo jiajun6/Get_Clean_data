@@ -17,17 +17,17 @@ The objective of this project was to first assemble the different files to compo
 
 ## Data source
 
-The files were downloaded using this URL:
+The files were downloaded from this URL:
 https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip
 
 The following unzipped files were used:
-- features.txt: labels for the 561 features - 561 * 2 (feature # and label);
-- activity_labels.txt: six activity labels - 6 * 2 (activity code and label));
+- features.txt: labels for the 561 features (561 rows * 2 cols - feature # and label);
+- activity_labels.txt: six activity labels - (6 rows * 2 cols - activity code and label);
 - train/x_train.txt: training data (7352 observations * 561 features);
-- train/y_train.txt: activity code corresponding to each observation of the training set (7352 * 1);
-- train/subject_train.txt: subject id for training set (21 values between 1 and 30); 
+- train/y_train.txt: activity code corresponding to each observation of the training set (7352 rows * 1 col);
+- train/subject_train.txt: subject id for training set (21 values selected between 1 and 30); 
 - test/x_test.txt: testing data (2947 observations * 561 features);
-- test/y_test.txt: activity code corresponding to each observation of the testing set (2947 * 1);
+- test/y_test.txt: activity code corresponding to each observation of the testing set (2947 rows * 1 col);
 - test/subject_test.txt: subject id for testing set (9 values between 1 and 30, not found in train/subject_train.txt); 
 
 ## Methods
@@ -38,7 +38,7 @@ After reading all data files into R, the following steps were followed (see the 
 
 The required features were first selected. The initial names of the features found in features.txt helped identifying the variables and the mathematical treatment applied on it.
 
-There was a total of 33 variables (for variables ending with XYZ, there was one variable for each axis): 
+There was a total of 33 variables, as described below. For variables ending with XYZ, there was one variable for each axis. Variables starting with a "t" are in the time domain, while variables starting with a "f" are in th frequency domain: 
 - tBodyAcc-XYZ
 - tGravityAcc-XYZ
 - tBodyAccJerk-XYZ
@@ -57,7 +57,7 @@ There was a total of 33 variables (for variables ending with XYZ, there was one 
 - fBodyGyroMag
 - fBodyGyroJerkMag
 
-There were 16 possible treatments done:
+There were 16 possible treatments performed on the variables:
 - mean(): Mean value
 - std(): Standard deviation
 - mad(): Median absolute deviation 
@@ -79,33 +79,33 @@ In the 561 features, there were also four fields representing angle between vect
 
 Each of the 561 field names contained information on the variable and on the treatment. For example, the variable tBodyAcc-mean()-X represented the mean of the tBodyAcc along the X axis. For this project, we were only interested by the mean() and standard deviation (std()). 
 
-The str_detect functions from the stringr package was then used to identify all features that contained either the string mean() or the string std(). 66 features contained one or the other. This was used to compose a logical vector to be able to subset the whole measurement data set in a subsequent step.
+The str_detect functions from the stringr package was then used to identify all features that contained either the string mean() or the string std(). 66 features contained one or the other. This was used to compose a logical vector to be able to extract the 66 appropriate columns from the whole measurement data set (next step).
 
 ### 2. Prepare training and testing subsets 
 
 Relevant columns were selected from the training table created from the basic file (X_train.txt), using the logical vector created in step 1. Then the vector representing the ids of the subjects (from subject_train.txt) was column-bound to that subset. The activity code vector (from y_train.txt) was then column-bound to that subset.
 
-The same operations were performed with the testing tables from X_test.txt, subject_train.txt and y_train.txt files.
+The same operations were performed with the testing tables created from X_test.txt, subject_train.txt and y_train.txt files.
 
 ### 3. Merge training and testing sets and identify activities
 
-The training and testing subsets produced in step 2 were merged together using row binding, which produced a data table of 10299 rows by 68 columns. The last operation consisted of retrieving the activity label corresponding to the activity code for each observation. This was done using the merge function applied on the activity column. The activity code column was then removed from this new table (df_alldata).
+The training and testing subsets produced in step 2 were merged together using row binding, which produced a data table of 10299 rows by 68 columns. The last operation consisted of retrieving the activity label corresponding to the activity code for each observation. Activity tables were contained in a tab;e created from the activity_labels.txt file. This was done using the merge function applied on the activity code column, which was common to both tables. The activity code column was then removed from this new table (df_alldata).
 
 ### 4. Calculate the average of each selected feature for each subject and each activity
 
-A table was created by sub-grouping the df_alldata table, using the group_by function of the dplyr package. It was grouped by subject and activity. Then the mean function was applied to each sub-group using the summarise_each function and the results were assigned to a new table called stats_subj_act. This resulting table was then exported to the stats_subj_act.txt file.
+An additional table was created by sub-grouping the df_alldata table, using the group_by function of the dplyr package. It was grouped by subject and activity. Then the mean function was applied to each sub-group using the summarise_each function and the results were assigned to a new table called stats_subj_act. This resulting table was then exported to the stats_subj_act.txt file.
 
 
 ## Description of the final file (stats_subj_act.txt file)
 
-The final file contains 68 variables and 181 lines. The data in each line is space delimited. The first line contains the headers with "". The other 180 lines contain the data: identification of the subject (1 to 30), activity (one of six possibilities), and the average values of the 66 selected measurement features. The 68 variable names are listed below. Only two of the 66 measurement features are described; the same logic applies to all 64 other features.
+The final file contains 68 variables and 181 lines. The data in each line is space delimited. The first line contains the headers with "". The other 180 lines contain the data: identification of the subject (1 to 30), activity (one of six possibilities), and the average values of the 66 selected measurement features. The 68 variable names are listed below. Only four of the 66 measurement features are described; the same logic applies to all 62 other features. All measurements variables are unitless and their values vary globally from -0.997 to +0.975.
 
 - subject: id of the experiment subject (1 to 30)
 - activity: name of the activity (walking, walking upstairs, walking downstairs, sitting, standing, laying)
-- tBodyAcc_mean_X: average of the mean of the tBodyAcc along the X axis for a given subject and activity
+- tBodyAcc_mean_X: average of the mean of BodyAcc along the X axis in the time domain for a given subject and activity (unitless)
 - tBodyAcc_mean_Y
 - tBodyAcc_mean_Z
-- tBodyAcc_std_X: average of the standard deviation of the tBodyAcc along the X axis for a given subject and - activity
+- tBodyAcc_std_X: average of the standard deviation of BodyAcc along the X axis in the time domain for a given subject and activity (unitless)
 - tBodyAcc_std_Y
 - tBodyAcc_std_Z
 - tGravityAcc_mean_X
@@ -142,10 +142,10 @@ The final file contains 68 variables and 181 lines. The data in each line is spa
 - tBodyGyroMag_std
 - tBodyGyroJerkMag_mean
 - tBodyGyroJerkMag_std
-- fBodyAcc_mean_X
+- fBodyAcc_mean_X: average of the mean of the BodyAcc along the X axis in the frequency domain for a given subject and activity (unitless)
 - fBodyAcc_mean_Y
 - fBodyAcc_mean_Z
-- fBodyAcc_std_X
+- fBodyAcc_std_X: average of the standard deviation of BodyAcc along the X axis in the frequency domain for a given subject and activity (unitless)
 - fBodyAcc_std_Y
 - fBodyAcc_std_Z
 - fBodyAccJerk_mean_X
